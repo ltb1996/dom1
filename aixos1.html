@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axios Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #result, #postResult, #asyncGetResult, #asyncPostResult {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 300px;
+            padding: 8px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid #eee;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .method-title {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Axios GET Request Example</h1>
+    <button id="fetchButton">Fetch Users</button>
+    <div id="result"></div>
+
+    <!-- 新增 POST 请求示例 -->
+    <hr>
+    <h1>Axios POST Request Example</h1>
+    <div class="form-group">
+        <label for="titleInput">标题:</label>
+        <input type="text" id="titleInput" placeholder="输入标题">
+    </div>
+    <div class="form-group">
+        <label for="bodyInput">内容:</label>
+        <input type="text" id="bodyInput" placeholder="输入内容">
+    </div>
+    <button id="postButton">提交数据</button>
+    <div id="postResult"></div>
+
+    <!-- 新增 Async/Await GET 请求示例 -->
+    <hr>
+    <h1>Axios <span class="method-title">Async/Await</span> GET Request Example</h1>
+    <button id="asyncFetchButton">Async 获取用户</button>
+    <div id="asyncGetResult"></div>
+
+    <!-- 新增 Async/Await POST 请求示例 -->
+    <hr>
+    <h1>Axios <span class="method-title">Async/Await</span> POST Request Example</h1>
+    <div class="form-group">
+        <label for="asyncTitleInput">标题:</label>
+        <input type="text" id="asyncTitleInput" placeholder="输入标题">
+    </div>
+    <div class="form-group">
+        <label for="asyncBodyInput">内容:</label>
+        <input type="text" id="asyncBodyInput" placeholder="输入内容">
+    </div>
+    <button id="asyncPostButton">Async 提交数据</button>
+    <div id="asyncPostResult"></div>
+
+    <!-- 引入Axios库 -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        document.getElementById('fetchButton').addEventListener('click', function() {
+            axios.get('https://s5.360game.360.cn/to5/mini/v21/category.html')
+                .then(function (response) {
+                    // 处理成功情况
+                    const users = response.data.data;
+                    console.log(users, "-----------------------------");
+                    const resultDiv = document.getElementById('result');
+                    resultDiv.innerHTML = '<h2>Users Found:</h2><ul>' + 
+                        users.map(user => `<li>${user.name}</li>`).join('');
+                    // console.log(response.data.data, "-----------------------------");
+                })
+                .catch(function (error) {
+                    // 处理错误情况
+                    // console.error('There was an error!', error);
+                    // document.getElementById('result').innerHTML = '<p>Error fetching data.</p>';
+                });
+        });
+
+        // 新增 POST 请求代码
+        document.getElementById('postButton').addEventListener('click', function() {
+            // 获取输入的数据
+            const title = document.getElementById('titleInput').value || '默认标题';
+            const body = document.getElementById('bodyInput').value || '默认内容';
+            
+            // 准备要发送的数据
+            const postData = {
+                title: title,
+                body: body,
+                userId: 1  // 示例用户ID
+            };
+            
+            // 发送 POST 请求
+            axios.post('https://jsonplaceholder.typicode.com/posts', postData)
+                .then(function(response) {
+                    // 处理成功情况
+                    console.log('POST 响应:', response.data);
+                    const postResultDiv = document.getElementById('postResult');
+                    postResultDiv.innerHTML = `
+                        <h3>提交成功!</h3>
+                        <p><strong>响应状态:</strong> ${response.status}</p>
+                        <p><strong>创建的记录ID:</strong> ${response.data.id}</p>
+                        <p><strong>标题:</strong> ${response.data.title}</p>
+                        <p><strong>内容:</strong> ${response.data.body}</p>
+                    `;
+                })
+                .catch(function(error) {
+                    // 处理错误情况
+                    console.error('提交出错:', error);
+                    document.getElementById('postResult').innerHTML = `
+                        <p>提交数据时出错。</p>
+                        <p>错误信息: ${error.message}</p>
+                    `;
+                });
+        });
+
+        // 新增 Async/Await GET 请求代码
+        document.getElementById('asyncFetchButton').addEventListener('click', async function() {
+            try {
+                // 使用 async/await 发送 GET 请求
+                const response = await axios.get('https://s5.360game.360.cn/to5/mini/v21/category.html');
+                
+                // 处理成功情况
+                const users = response.data.data;
+                console.log(users, "async/await GET 结果");
+                
+                const resultDiv = document.getElementById('asyncGetResult');
+                resultDiv.innerHTML = '<h2>Async/Await 获取的用户:</h2><ul>' + 
+                    users.map(user => `<li>${user.name}</li>`).join('') + '</ul>';
+            } catch (error) {
+                // 处理错误情况
+                console.error('Async/Await GET 请求出错:', error);
+                document.getElementById('asyncGetResult').innerHTML = `
+                    <p>获取数据时出错。</p>
+                    <p>错误信息: ${error.message}</p>
+                `;
+            }
+        });
+
+        // 新增 Async/Await POST 请求代码
+        document.getElementById('asyncPostButton').addEventListener('click', async function() {
+            try {
+                // 获取输入的数据
+                const title = document.getElementById('asyncTitleInput').value || '默认异步标题';
+                const body = document.getElementById('asyncBodyInput').value || '默认异步内容';
+                
+                // 准备要发送的数据
+                const postData = {
+                    title: title,
+                    body: body,
+                    userId: 2  // 示例用户ID
+                };
+                
+                // 使用 async/await 发送 POST 请求
+                const response = await axios.post('https://jsonplaceholder.typicode.com/posts', postData);
+                
+                // 处理成功情况
+                console.log('Async/Await POST 响应:', response.data);
+                const postResultDiv = document.getElementById('asyncPostResult');
+                postResultDiv.innerHTML = `
+                    <h3>异步提交成功!</h3>
+                    <p><strong>响应状态:</strong> ${response.status}</p>
+                    <p><strong>创建的记录ID:</strong> ${response.data.id}</p>
+                    <p><strong>标题:</strong> ${response.data.title}</p>
+                    <p><strong>内容:</strong> ${response.data.body}</p>
+                `;
+            } catch (error) {
+                // 处理错误情况
+                console.error('Async/Await POST 请求出错:', error);
+                document.getElementById('asyncPostResult').innerHTML = `
+                    <p>异步提交数据时出错。</p>
+                    <p>错误信息: ${error.message}</p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
